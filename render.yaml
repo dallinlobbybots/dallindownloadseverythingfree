@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dallindownloadseverythingfree-api
+    env: python
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FRONTEND_ORIGIN
+        value: https://dallindownloadseverythingfree.vercel.app
+      - key: PYTHON_VERSION
+        value: 3.12.0
+    healthCheckPath: /health
