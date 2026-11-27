@@ -107,6 +107,21 @@ export async function searchAnime(q) {
     }));
 }
 
+export async function loadTopAnime(limit = 20, filter) {
+  const data = await tenrai("/top/anime", { limit: Math.min(limit, 25), filter, sfw: "true" });
+  return (data.data || [])
+    .filter((r) => r?.mal_id && posterOf(r))
+    .slice(0, limit)
+    .map((r) => ({
+      id: r.mal_id,
+      media_type: "anime",
+      name: displayName(r),
+      year: yearOf(r),
+      poster: posterOf(r),
+      rating: r.score ?? null,
+    }));
+}
+
 export async function loadAnime(id) {
   const detail = await tenrai(`/anime/${id}`);
   const d = detail.data;

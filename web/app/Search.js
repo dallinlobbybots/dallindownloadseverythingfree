@@ -43,11 +43,22 @@ function ResultList({ items }) {
 }
 
 function Row({ title, items }) {
+  const trackRef = useRef(null);
   if (!items?.length) return null;
+  const scroll = (dir) => {
+    const el = trackRef.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+  };
   return (
     <section className="nf-row" aria-label={title}>
-      <h2 className="nf-row-title">{title}</h2>
-      <div className="nf-row-track">
+      <div className="nf-row-head">
+        <h2 className="nf-row-title">{title}</h2>
+        <div className="nf-row-arrows">
+          <button type="button" className="nf-arrow" aria-label={`Scroll ${title} left`} onClick={() => scroll(-1)}>‹</button>
+          <button type="button" className="nf-arrow" aria-label={`Scroll ${title} right`} onClick={() => scroll(1)}>›</button>
+        </div>
+      </div>
+      <div className="nf-row-track" ref={trackRef}>
         {items.map((r) => {
           const route = r.media_type === "movie" ? "m" : r.media_type === "anime" ? "a" : "s";
           const blocked = isBlocked(route, r.id);
@@ -58,11 +69,12 @@ function Row({ title, items }) {
               ) : (
                 <span className="nf-no-poster">{r.name}</span>
               )}
-              <span className="result-info">
-                <span className="name">
-                  {r.name} ({r.year || "?"})
+              <span className="nf-card-info">
+                <span className="nf-card-name">{r.name}</span>
+                <span className="nf-card-meta">
+                  {r.year || ""}
+                  {r.rating ? ` · ★ ${Number(r.rating).toFixed(1)}` : ""}
                 </span>
-                <span className="meta">{r.media_type}</span>
               </span>
             </>
           );
@@ -153,12 +165,14 @@ export default function Search({ trending = [], q = "", hero = null, rows = [], 
       <header id="header" className="nf-header">
         <h1>
           <a href="/">downloadeverything<span className="nf-accent">free</span></a>
-          {" • "}
-          <a href="/suggest">suggest</a>
         </h1>
-        <a href="/guide" className="site-guide-link">
-          site guide
-        </a>
+        <nav className="nf-nav" aria-label="Site">
+          <a href="/">Home</a>
+          <a href="/suggest">Suggest</a>
+          <a href="/guide" className="site-guide-link">
+            Guide
+          </a>
+        </nav>
         <QueueMark />
       </header>
 

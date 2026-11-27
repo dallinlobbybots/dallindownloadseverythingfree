@@ -118,7 +118,30 @@ export const loadList = cache(async function loadList(kind, list, limit = 20) {
       name: kind === "movie" ? r.title : r.name,
       year: (r.release_date || r.first_air_date || "").slice(0, 4) || null,
       poster: imgUrl(r.poster_path, "w342"),
+      rating: r.vote_average ?? null,
     }));
+});
+
+/** Discover by genre / sort, e.g. discover movie with_genres=28. */
+export const loadDiscover = cache(async function loadDiscover(kind, query = {}, limit = 20) {
+  const data = await tmdb(`/discover/${kind}`, { sort_by: "popularity.desc", include_adult: "false", ...query });
+  return (data.results || [])
+    .filter((r) => r.poster_path)
+    .slice(0, limit)
+    .map((r) => ({
+      id: r.id,
+      media_type: kind,
+      name: kind === "movie" ? r.title : r.name,
+      year: (r.release_date || r.first_air_date || "").slice(0, 4) || null,
+      poster: imgUrl(r.poster_path, "w342"),
+      rating: r.vote_average ?? null,
+    }));
+});
+
+/** Top / popular anime via Tenrai (Jikan). */
+export const loadTopAnime = cache(async function loadTopAnime(limit = 20, filter) {
+  const { loadTopAnime: top } = await import("./tenrai.js");
+  return top(limit, filter);
 });
 
 /** Movie + TV genres merged, de-duplicated by name. */
@@ -148,6 +171,7 @@ export const loadTrending = cache(async function loadTrending(limit = 50) {
         name: r.media_type === "movie" ? r.title : r.name,
         year: (r.release_date || r.first_air_date || "").slice(0, 4) || null,
         poster: imgUrl(r.poster_path, "w342"),
+        rating: r.vote_average ?? null,
       });
       if (out.length >= limit) break;
     }
