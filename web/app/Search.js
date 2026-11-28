@@ -177,17 +177,23 @@ export default function Search({ trending = [], q = "", hero = null, rows = [], 
       </header>
 
       <form className="search nf-search" role="search" action="/" method="get" onSubmit={(e) => e.preventDefault()}>
-        <input
-          type="text"
-          name="q"
-          placeholder="Search movies, TV, anime…"
-          aria-label="Search movies, TV shows, and anime"
-          autoComplete="off"
-          autoFocus
-          spellCheck={false}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        <div className="nf-search-box">
+          <span className="nf-search-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /></svg>
+          </span>
+          <input
+            type="text"
+            name="q"
+            placeholder="Search movies, TV, anime…"
+            aria-label="Search movies, TV shows, and anime"
+            autoComplete="off"
+            autoFocus
+            spellCheck={false}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button type="submit" className="nf-search-btn">Search</button>
+        </div>
       </form>
 
       {searched ? (
@@ -208,7 +214,15 @@ export default function Search({ trending = [], q = "", hero = null, rows = [], 
                 <h2 className="nf-hero-title">{hero.name}</h2>
                 {hero.tagline ? <p className="nf-hero-tagline">{hero.tagline}</p> : null}
                 {hero.overview ? <p className="nf-hero-overview">{hero.overview}</p> : null}
-                {hero.tags?.length ? <p className="nf-hero-tags">{hero.tags.join(" · ")}</p> : null}
+                {(hero.year || hero.rating || hero.tags?.length) ? (
+                  <div className="nf-hero-pills">
+                    {hero.year ? <span className="nf-hero-pill">{hero.year}</span> : null}
+                    {hero.rating ? <span className="nf-hero-pill">★ {Number(hero.rating).toFixed(1)}</span> : null}
+                    {(hero.tags || []).slice(0, 4).map((t) => (
+                      <span key={t} className="nf-hero-pill">{t}</span>
+                    ))}
+                  </div>
+                ) : null}
                 <a className="nf-hero-btn" href={heroRoute}>
                   Find Downloads
                 </a>
